@@ -13,7 +13,7 @@ public class ExampleMod implements ModInitializer {
 
 	@Override
 	public void onInitialize(ModContainer mod) {
-		RhinoEntity.createRhinoAttributes();
+		RideableSheepEntity.createRideableSheepAttributes();
 		LOGGER.info("Hello Quilt world from {}!", mod.metadata().name());
 	}
 }

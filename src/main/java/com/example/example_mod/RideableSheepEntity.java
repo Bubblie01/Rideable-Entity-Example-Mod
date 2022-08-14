@@ -73,6 +73,8 @@ public class RideableSheepEntity extends SheepEntity implements JumpingMount {
 
 	@Override
 	public void travel(Vec3d movementInput) {
+		float f;
+		float g;
 		LivingEntity livingEntity = (LivingEntity)this.getPrimaryPassenger();
 		if (this.hasPassengers() && livingEntity != null) {
 			this.setYaw(livingEntity.getYaw());
@@ -81,17 +83,27 @@ public class RideableSheepEntity extends SheepEntity implements JumpingMount {
 			this.setRotation(this.getYaw(), this.getPitch());
 			this.bodyYaw = this.getYaw();
 			this.headYaw = this.bodyYaw;
-			float f = livingEntity.sidewaysSpeed * 0.5F;
-			float g = livingEntity.forwardSpeed;
-			if(g > 0.0) {
-				float h = MathHelper.sin(this.getYaw() * (float) (Math.PI / 180.0));
-				float i = MathHelper.cos(this.getYaw() * (float) (Math.PI / 180.0));
-				this.setVelocity(this.getVelocity().add((double)(-0.4F * h), 0.0, (double)(0.4F * i)));
+			f = livingEntity.sidewaysSpeed * 0.5F;
+			g = livingEntity.forwardSpeed;
+			if (g <= 0.0F) {
+				g *= 0.25F;
 			}
-			if(isLogicalSideForUpdatingMovement()) {
-				this.setMovementSpeed((float)this.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED));
-				super.travel(new Vec3d((double)f, movementInput.y, (double)g));
+			if (this.onGround && jumpStrength > 0.0F) {
+				double d = (double) this.jumpStrength * (double) this.getJumpVelocityMultiplier();
+				double e = d + this.getJumpBoostVelocityModifier();
+				Vec3d vec3d = this.getVelocity();
+				this.setVelocity(vec3d.x, e, vec3d.z);
+				if (g > 0.0) {
+					float h = MathHelper.sin(this.getYaw() * (float) (Math.PI / 180.0));
+					float i = MathHelper.cos(this.getYaw() * (float) (Math.PI / 180.0));
+					this.setVelocity(this.getVelocity().add((double) (-0.4F * h * jumpStrength), 0.0, (double) (0.4F * i * jumpStrength)));
+				}
 			}
+			if (isLogicalSideForUpdatingMovement()) {
+				this.setMovementSpeed((float) this.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED));
+				super.travel(new Vec3d((double) f, movementInput.y, (double) g));
+			}
+			this.setMovementSpeed(0f);
 		}
 		super.travel(movementInput);
 	}
